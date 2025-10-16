@@ -25,13 +25,17 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
+  var favorites = <WordPair>[];
+  var allPairs = <WordPair>[];
+
   var current = WordPair.random();
+
   void getNext() {
     current = WordPair.random();
+    allPairs.insert(0, current);
     notifyListeners();
   }
-
-  var favorites = <WordPair>[];
+  
   void toggleFavorite() {
     if (favorites.contains(current)) {
       favorites.remove(current);
@@ -56,10 +60,8 @@ class _MyHomePageState extends State<MyHomePage> {
     switch (selectedIndex) {
       case 0:
         page = GeneratorPage();
-        break;
       case 1:
         page = MyLikedMSGPage();
-        break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -150,31 +152,55 @@ class GeneratorPage extends StatelessWidget {
 
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          BigCard(pair: pair),
-          SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  appState.toggleFavorite();
-                },
-                icon: Icon(icon),
-                label: Text('Like'),
+          Expanded(child: Title(
+                  title: "My Favorites",
+                  color: Colors.black,
+                  child: ListView(
+                  children: [
+                    for (var pair in appState.allPairs)
+                      ListTile(
+                        leading: Icon(
+                            appState.favorites.contains(pair)
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                          ),
+                        title: Text(pair.asLowerCase),
+                      ),
+                  ],
+                ),
               ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Next'),
+            ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+                  BigCard(pair: pair),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          appState.toggleFavorite();
+                        },
+                        icon: Icon(icon),
+                        label: Text('Like'),
+                      ),
+                      SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          appState.getNext();
+                        },
+                        child: Text('Next'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
     );
   }
 }
@@ -196,7 +222,6 @@ class BigCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(20),
 
-        // ↓ Make the following change.
         child: Text(
           pair.asLowerCase,
           style: style,
