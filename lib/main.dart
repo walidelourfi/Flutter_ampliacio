@@ -124,7 +124,16 @@ class MyLikedMSGPage extends StatelessWidget{
               children: [
                 for (var pair in appContext.favorites)
                   ListTile(
-                    leading: Icon(Icons.favorite),
+                    leading: IconButton(
+                      icon: Icon(Icons.favorite),
+                      onHover: (value) {
+                        Tooltip(message: "Remove from favorites");
+                      },
+                      onPressed: () {
+                        appContext.favorites.remove(pair);
+                        appContext.notifyListeners();
+                      },
+                    ),
                     title: Text(pair.asLowerCase),
                   ),
               ],
